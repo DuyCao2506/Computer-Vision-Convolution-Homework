@@ -1,3 +1,7 @@
+###
+#Cao Khac Le Duy
+#1351008
+###
 from ImageProcess import ImageProcessor
 import ImageProcess as ImP
 import cv2

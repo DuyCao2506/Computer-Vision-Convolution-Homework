@@ -1,3 +1,8 @@
+###
+#Cao Khac Le Duy
+#1351008
+###
+
 import cv2
 import numpy as np
 import sys
@@ -49,8 +54,10 @@ def main(argv):
     if len(argv) == 0:
         captureEnv()
         return
-
-    imageLoadEnv(argv)
+    elif len(argv) == 1:
+        imageLoadEnv(argv)
+    else:
+        print ("Wrong arguments")
 
     pass
 

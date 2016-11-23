@@ -1,33 +1,14 @@
 # coding=utf-8
+###
+#Cao Khac Le Duy
+#1351008
+###
 from skimage.exposure import rescale_intensity
 import cv2
 import numpy as np
 import scipy
 import argparse
 from enum import Enum
-
-
-def draw_arrow(image, x, y, dx, dy, color, arrow_magnitude=9, thickness=1, line_type=4, shift=0):
-    # calc angle of the arrow
-    angle = np.arctan2(dx, dy)
-    x1 = int(arrow_magnitude * np.cos(angle) + x)
-    y1 = int(arrow_magnitude * np.sin(angle) + y)
-    p = (int(y), int(x))
-    q = (y1, x1)
-
-    # draw arrow tail
-    cv2.line(image, p, q, color, thickness, line_type, shift)
-
-    # # starting point of first line of arrow head
-    # p = (int(q[0] + arrow_magnitude * np.cos(angle + np.pi/4)),
-    # int(q[1] + arrow_magnitude * np.sin(angle + np.pi/4)))
-    # # draw first half of arrow head
-    # cv2.line(image, p, q, color, thickness, line_type, shift)
-    # # starting point of second line of arrow head
-    # p = (int(q[0] + arrow_magnitude * np.cos(angle - np.pi/4)),
-    # int(q[1] + arrow_magnitude * np.sin(angle - np.pi/4)))
-    # # draw second half of arrow head
-    # cv2.line(image, p, q, color, thickness, line_type, shift)
 
 class Tool(Enum):
     SMOOTH = 1
@@ -105,13 +86,17 @@ class ImageProcessor:
         xlength, ylength = self.cloneImg.shape
         for x in np.arange(1, xlength, N*5):
             for y in np.arange(1, ylength, N*5):
-                draw_arrow(self.cloneImg, x, y, dx[x][y], dy[x][y], [100, 0, 255], K)
-
+                angle = np.arctan2(dx[x][y], dy[x][y])
+                x1 = int(K * np.cos(angle) + x)
+                y1 = int(K * np.sin(angle) + y)
+                p = (int(y), int(x))
+                q = (y1, x1)
+                cv2.arrowedLine(self.cloneImg, p, q, [100, 0, 255], 1, 8 , 0, 0.1)
+                #######draw_arrow(self.cloneImg, x, y, dx[x][y], dy[x][y], [100, 0, 255], K)
         cv2.imshow(self.windowName, self.cloneImg)
 
-
     def rotateImg(self, val):
-        self.cloneImg = self.cvGrayScale(self.img)
+        self.cloneImg = self.cvGrayScale()
         rows, cols = self.cloneImg.shape
         M = cv2.getRotationMatrix2D((cols / 2, rows / 2), val, 1)
         self.cloneImg = cv2.warpAffine(self.cloneImg, M, (cols, rows))
@@ -204,6 +189,7 @@ class ImageProcessor:
         pad = (kW - 1) / 2
         image = cv2.copyMakeBorder(image, pad, pad, pad, pad,
                                    cv2.BORDER_REPLICATE)
+
         output = np.zeros((iH, iW), dtype="float32")
 
         for y in np.arange(pad, iH + pad):
@@ -227,6 +213,11 @@ class ImageProcessor:
 
 
 def processImg(ins, key, callback=None):
+    chars = ''
+    try:
+        chars = chr(key)
+    except ValueError:
+        return
     if chr(key) == 'i':
         ins.cloneImg = ins.reloadImg()
     elif chr(key) == 'w':
